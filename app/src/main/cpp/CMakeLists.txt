@@ -9,6 +9,9 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project("ssp")
 
+include(AndroidNdkModules)
+android_ndk_import_module_ndk_helper()
+
 include_directories(
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_SOURCE_DIR}/Base/AND
@@ -28,7 +31,14 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         native-lib.cpp
-        ${BASE_AND_CLASSES_SRC})
+
+
+        Base/time.cpp
+        Base/fps.cpp
+        Base/bitrate.cpp
+
+
+        )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -52,4 +62,5 @@ target_link_libraries( # Specifies the target library.
         android
         # Links the target library to the log library
         # included in the NDK.
-        ${log-lib})
+        ${log-lib}
+        )
