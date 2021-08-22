@@ -6,23 +6,15 @@
 
 #include <vector>
 
-#include "sample.hpp"
+#include "calc_sample.hpp"
 
 namespace ssp {
 
-class FPS final {
+class FPS final : public CalcSample {
  public:
-  bool update(float &fps, Sample::TickType tick = Sample::now().tick);
- private:
-  Sample updateSample(Sample sample);
+  bool update(float &fps, TickType tick = Sample::now().tick);
  private:
   float currentFPS = 0;
-  uint32_t index = 0;
-  Sample::TickType lastTick = Sample::TickType::zero();
-  Sample::TickType hasUpdateTick = Sample::TickType::zero();
-  Sample sampleSum = Sample::zero();
-  std::vector<Sample> samples;
-
 };
 
 }

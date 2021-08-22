@@ -15,8 +15,6 @@ class StreamState {
 
   virtual ~StreamState() = default;
 
-  void update(Sample sample = Sample::zero());
-
   uint64_t getTotalSize() const;
 
  protected:
