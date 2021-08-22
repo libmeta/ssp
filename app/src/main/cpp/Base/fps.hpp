@@ -6,29 +6,20 @@
 
 #include <vector>
 
-#include "time.hpp"
+#include "sample.hpp"
 
 namespace ssp {
 
-class FPS {
-  static constexpr uint32_t NUM_SAMPLE = 100;
-  static constexpr auto TIME_SAMPLE = Time::MS(1000);
-
-  struct Sample {
-	static inline Sample zero() { return Sample(); };
-	Time::MS tick = Time::MS::zero();
-  };
-
+class FPS final {
  public:
-  bool update(float &fps);
-
+  bool update(float &fps, Sample::TickType tick = Sample::now().tick);
  private:
   Sample updateSample(Sample sample);
  private:
   float currentFPS = 0;
   uint32_t index = 0;
-  Time::MS lastMS = Time::MS::zero();
-  Time::MS hasUpdateMS = Time::MS::zero();
+  Sample::TickType lastTick = Sample::TickType::zero();
+  Sample::TickType hasUpdateTick = Sample::TickType::zero();
   Sample sampleSum = Sample::zero();
   std::vector<Sample> samples;
 

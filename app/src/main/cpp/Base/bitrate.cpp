@@ -6,20 +6,19 @@
 
 namespace ssp {
 
-bool Bitrate::update(uint64_t &bitrate, uint64_t size) {
-  auto nowMs = Time::GetMilliSeconds();
-  if (lastMS == Time::MS::zero()) {
-	hasUpdateMS = lastMS = nowMs;
+bool Bitrate::update(uint64_t &bitrate, uint64_t size, Sample::TickType tick) {
+  if (lastTick == Sample::TickType::zero()) {
+	hasUpdateTick = lastTick = tick;
 	bitrate = currentBitrate;
 	return false;
   }
 
-  auto dSample = updateSample({nowMs - lastMS, size});
-  lastMS = nowMs;
+  auto dSample = updateSample({tick - lastTick, size});
+  lastTick = tick;
 
-  if (nowMs - hasUpdateMS >= TIME_SAMPLE) {
-	hasUpdateMS = nowMs;
-	currentBitrate = dSample.size * 8 / dSample.tick.count();
+  if (tick - hasUpdateTick >= Sample::TIME) {
+	hasUpdateTick = tick;
+	currentBitrate = dSample.size * 8 * Sample::TickType::period::den / dSample.tick.count();
 	bitrate = currentBitrate;
 	return true;
   }
@@ -28,8 +27,8 @@ bool Bitrate::update(uint64_t &bitrate, uint64_t size) {
   return false;
 }
 
-Bitrate::Sample Bitrate::updateSample(Bitrate::Sample sample) {
-  if (samples.size() == NUM_SAMPLE) {
+Sample Bitrate::updateSample(Sample sample) {
+  if (samples.size() == Sample::NUM) {
 	sampleSum.tick -= sample.tick;
 	sampleSum.size -= sample.size;
 	samples[index] = sample;
@@ -39,7 +38,7 @@ Bitrate::Sample Bitrate::updateSample(Bitrate::Sample sample) {
 
   sampleSum.tick += sample.tick;
   sampleSum.size += sample.size;
-  index = (index + 1) % NUM_SAMPLE;
+  index = (index + 1) % Sample::NUM;
 
   return {sampleSum.tick / samples.size(), sampleSum.size / samples.size()};
 }

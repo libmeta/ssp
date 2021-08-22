@@ -6,20 +6,19 @@
 
 namespace ssp {
 
-bool FPS::update(float &fps) {
-  auto nowMs = Time::GetMilliSeconds();
-  if (lastMS == Time::MS::zero()) {
-	hasUpdateMS = lastMS = nowMs;
+bool FPS::update(float &fps, Sample::TickType tick) {
+  if (lastTick == Sample::TickType::zero()) {
+	hasUpdateTick = lastTick = tick;
 	fps = currentFPS;
 	return false;
   }
 
-  auto dSample = updateSample({nowMs - lastMS});
-  lastMS = nowMs;
+  auto dSample = updateSample({tick - lastTick});
+  lastTick = tick;
 
-  if (nowMs - hasUpdateMS >= TIME_SAMPLE) {
-	hasUpdateMS = nowMs;
-	currentFPS = 1000.f / float(dSample.tick.count());
+  if (tick - hasUpdateTick >= Sample::TIME) {
+	hasUpdateTick = tick;
+	currentFPS = float(double(Sample::TickType::period::den) / double(dSample.tick.count()));
 	fps = currentFPS;
 	return true;
   }
@@ -28,8 +27,8 @@ bool FPS::update(float &fps) {
   return false;
 }
 
-FPS::Sample FPS::updateSample(FPS::Sample sample) {
-  if (samples.size() == NUM_SAMPLE) {
+Sample FPS::updateSample(Sample sample) {
+  if (samples.size() == Sample::NUM) {
 	sampleSum.tick -= sample.tick;
 	samples[index] = sample;
   } else {
@@ -37,7 +36,7 @@ FPS::Sample FPS::updateSample(FPS::Sample sample) {
   }
 
   sampleSum.tick += sample.tick;
-  index = (index + 1) % NUM_SAMPLE;
+  index = (index + 1) % Sample::NUM;
 
   return {sampleSum.tick / samples.size()};
 }

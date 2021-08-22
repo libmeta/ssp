@@ -6,30 +6,24 @@
 
 #include <chrono>
 
-namespace ssp::Time {
+namespace ssp {
 
-using namespace std::chrono;
+struct Time final : std::chrono::time_point<std::chrono::steady_clock> {
+  using base = std::chrono::time_point<std::chrono::steady_clock>;
 
-using TP = std::chrono::time_point<std::chrono::steady_clock>;
-using NS = std::chrono::nanoseconds;
-using US = std::chrono::microseconds;
-using MS = std::chrono::milliseconds;
-using S = std::chrono::seconds;
+  using NS = std::chrono::nanoseconds;
+  using US = std::chrono::microseconds;
+  using MS = std::chrono::milliseconds;
 
-enum : uint64_t {
-  NS_TIME_BASE = 1000'000'000ULL,
-  US_TIME_BASE = 1000'000ULL,
-  MS_TIME_BASE = 1000ULL,
-  S_TIME_BASE = 1ULL,
+  static inline base tp() {
+	return clock::now();
+  }
+
+  template<typename T>
+  static inline T now() {
+	return std::chrono::duration_cast<T>(tp().time_since_epoch());
+  }
+
 };
-
-extern TP GetTimePoint();
-
-extern NS GetNanoSeconds();
-
-extern US GetMicroSeconds();
-
-extern MS GetMilliSeconds();
 }
-
 
