@@ -11,7 +11,7 @@ namespace ssp {
 ///TIME_NUM 样本计算间隔时间
 ///NB_SAMPLE 样本缓存个数
 
-template<class TIME_TYPE = Time<>::us, uint64_t TIME_NUM = Time<>::us::period::den, uint32_t NB_SAMPLE = 100>
+template<class TIME_TYPE = Time::micro, uint64_t TIME_NUM = Time::micro::period::den, uint32_t NB_SAMPLE = 100>
 class CalcSample {
  public:
   using TICK_TYPE = TIME_TYPE;
@@ -19,7 +19,7 @@ class CalcSample {
 
   struct Sample {
 	static inline Sample zero() { return {}; }
-	static inline Sample now() { return {Time<>::now<TICK_TYPE>(), 0}; };
+	static inline Sample now() { return {Time::now<TICK_TYPE>(), 0}; };
 
 	TICK_TYPE tick = TICK_TYPE::zero();
 	uint64_t size = 0;

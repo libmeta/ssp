@@ -7,16 +7,16 @@
 #include <chrono>
 
 namespace ssp {
-template<typename CLOCK = std::chrono::steady_clock>
-struct Time final : CLOCK {
-  using ns = std::chrono::nanoseconds;
-  using us = std::chrono::microseconds;
-  using ms = std::chrono::milliseconds;
-  using s = std::chrono::seconds;
+using namespace std::chrono;
+struct Time final : steady_clock {
+  using nano = nanoseconds;
+  using micro = microseconds;
+  using milli = milliseconds;
+  using steady_clock::now;
 
-  template<typename T = us>
-  static inline T now() {
-	return std::chrono::duration_cast<T>(CLOCK::now().time_since_epoch());
+  template<typename T = micro>
+  static inline auto now() {
+	return duration_cast<T>(now().time_since_epoch());
   }
 
 };

@@ -35,6 +35,7 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         native-lib.cpp
 
+        Base/base.cpp
         Base/fps.cpp
         Base/bitrate.cpp
         Base/stream_state.cpp
