@@ -10,9 +10,9 @@
 
 namespace ssp {
 
-class Bitrate final : public CalcSample {
+ class Bitrate final : public CalcSample<> {
  public:
-  bool update(uint64_t &bitrate, uint64_t size = 0, TickType tick = Sample::now().tick);
+  bool update(uint64_t &bitrate, uint64_t size = 0, CalcSample::TICK_TYPE tick = Sample::now().tick);
 
  private:
   uint64_t currentBitrate = 0;

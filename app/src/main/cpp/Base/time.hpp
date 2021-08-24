@@ -7,23 +7,19 @@
 #include <chrono>
 
 namespace ssp {
+template<typename CLOCK = std::chrono::steady_clock>
+struct Time final : CLOCK {
+  using ns = std::chrono::nanoseconds;
+  using us = std::chrono::microseconds;
+  using ms = std::chrono::milliseconds;
+  using s = std::chrono::seconds;
 
-struct Time final : std::chrono::time_point<std::chrono::steady_clock> {
-  using base = std::chrono::time_point<std::chrono::steady_clock>;
-
-  using NS = std::chrono::nanoseconds;
-  using US = std::chrono::microseconds;
-  using MS = std::chrono::milliseconds;
-
-  static inline base tp() {
-	return clock::now();
-  }
-
-  template<typename T>
+  template<typename T = us>
   static inline T now() {
-	return std::chrono::duration_cast<T>(tp().time_since_epoch());
+	return std::chrono::duration_cast<T>(CLOCK::now().time_since_epoch());
   }
 
 };
+
 }
 

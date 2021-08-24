@@ -6,7 +6,7 @@
  * MIT License
  */
 #pragma once
-#include "jmi/jmi.h"
+#include "base/3rdparty/jmi/jmi.h"
 #include "android.media.MediaFormat.hpp"
 #include <vector>
 

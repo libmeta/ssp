@@ -14,10 +14,13 @@ android_ndk_import_module_ndk_helper()
 
 include_directories(
         ${CMAKE_SOURCE_DIR}
-        ${CMAKE_SOURCE_DIR}/Base/AND
-        ${CMAKE_SOURCE_DIR}/Base/AND/classes
+        ${CMAKE_SOURCE_DIR}/Base/and
+        ${CMAKE_SOURCE_DIR}/Base/3rdparty
+
 )
-file(GLOB BASE_AND_CLASSES_SRC ${CMAKE_SOURCE_DIR}/Base/AND/**/*.cpp)
+
+file(GLOB BASE_AND_SRC ${CMAKE_SOURCE_DIR}/Base/and/*.cpp)
+file(GLOB BASE_3RDPARTY_SRC ${CMAKE_SOURCE_DIR}/Base/3rdparty/**/*.cpp)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.

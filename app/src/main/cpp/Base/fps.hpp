@@ -10,9 +10,10 @@
 
 namespace ssp {
 
-class FPS final : public CalcSample {
+class FPS final : public CalcSample<> {
  public:
-  bool update(float &fps, TickType tick = Sample::now().tick);
+  bool update(float &fps, CalcSample::TICK_TYPE tick = Sample::now().tick);
+
  private:
   float currentFPS = 0;
 };

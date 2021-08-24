@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "jmi/jmi.h"
+#include "base/3rdparty/jmi/jmi.h"
 #include "java.nio.ByteBuffer.hpp"
 
 namespace jmi {

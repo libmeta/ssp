@@ -7,7 +7,7 @@
  */
 
 #pragma once
-#include "jmi/jmi.h"
+#include "base/3rdparty/jmi/jmi.h"
 
 namespace jmi {
 namespace java {
