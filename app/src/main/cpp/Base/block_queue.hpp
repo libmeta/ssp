@@ -1,9 +1,4 @@
-//
-// Created by TBD on 1/27/21.
-//
-
-#ifndef XLIVE_BLOCK_QUEUE_HPP
-#define XLIVE_BLOCK_QUEUE_HPP
+#pragma once
 
 #include <list>
 #include <queue>
@@ -11,7 +6,7 @@
 #include <shared_mutex>
 #include "semaphore.hpp"
 
-namespace xlab {
+namespace ssp::base {
 
 template<typename E>
 class CBlockQueue {
@@ -134,5 +129,3 @@ private:
 };
 
 }
-
-#endif //XLIVE_BLOCK_QUEUE_HPP

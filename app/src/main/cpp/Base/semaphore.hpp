@@ -1,6 +1,3 @@
-//
-// Created by TBD on 2020/8/28.
-//
 
 #pragma once
 

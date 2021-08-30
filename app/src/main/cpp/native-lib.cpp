@@ -11,7 +11,7 @@ Java_com_pzw_ssp_MainActivity_stringFromJNI(
 	jobject /* this */) {
   std::string hello = "Hello from C++";
 
-  ssp::FPS fps;
+  ssp::base::FPS fps;
   float f = 0.f;
   while (!fps.update(f)) {
 	usleep(23'000);
@@ -19,7 +19,7 @@ Java_com_pzw_ssp_MainActivity_stringFromJNI(
 
   hello += (" fps = " + std::to_string(f));
 
-  ssp::Bitrate bps;
+  ssp::base::Bitrate bps;
   uint64_t b = 0;
   uint64_t c = 10000;
   while (!bps.update(b, c)) {

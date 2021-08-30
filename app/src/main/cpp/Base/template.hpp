@@ -1,13 +1,9 @@
-//
-// Created by TBD on 3/2/21.
-//
 
-#ifndef XLIVE_TEMPLATE_HPP
-#define XLIVE_TEMPLATE_HPP
+#pragma once
 
 #include <type_traits>
 
-namespace xlab {
+namespace ssp::base {
 
 namespace NSTemplate {
 
@@ -506,6 +502,4 @@ using TypeDictAllValues = typename TypeDictAllValues_<TypeList<>, Dict>::type;
 }
 
 }
-
-#endif //XLIVE_TEMPLATE_HPP
 

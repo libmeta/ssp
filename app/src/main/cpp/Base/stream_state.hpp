@@ -7,7 +7,7 @@
 #include "fps.hpp"
 #include "bitrate.hpp"
 
-namespace ssp {
+namespace ssp::base {
 
 class StreamState {
  public:

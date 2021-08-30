@@ -1,5 +1,4 @@
-#ifndef XLAB_TIMED_QUEUE_HPP
-#define XLAB_TIMED_QUEUE_HPP
+#pragma once
 
 #include <mutex>
 #include <queue>
@@ -118,5 +117,3 @@ private:
 };
 
 }
-
-#endif // XLAB_TIMED_QUEUE_HPP

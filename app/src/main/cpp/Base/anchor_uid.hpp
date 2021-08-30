@@ -1,7 +1,4 @@
-
-
-#ifndef XLIVE_ANCHOR_UID_HPP
-#define XLIVE_ANCHOR_UID_HPP
+#pragma once
 
 #include "common.hpp"
 
@@ -45,5 +42,3 @@ struct hash<AnchorUID> {
 };
 
 }
-
-#endif //XLIVE_ANCHOR_UID_HPP

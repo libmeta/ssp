@@ -4,6 +4,6 @@
 
 #include "stream_state.hpp"
 
-namespace ssp {
+namespace ssp::base {
 
 }

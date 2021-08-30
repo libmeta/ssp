@@ -1,9 +1,4 @@
-//
-// Created by TBD on 12/23/20.
-//
-
-#ifndef XLIVE_BUFFER_QUEUE_HPP
-#define XLIVE_BUFFER_QUEUE_HPP
+#pragma once
 
 #include <queue>
 #include <list>
@@ -12,7 +7,7 @@
 #include <optional>
 #include "semaphore.hpp"
 
-namespace xlab {
+namespace ssp::base {
 
 template<typename E>
 class CBufferQueue {
@@ -97,5 +92,3 @@ private:
 };
 
 }
-
-#endif //XLIVE_BUFFER_QUEUE_HPP
