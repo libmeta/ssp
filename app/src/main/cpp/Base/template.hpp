@@ -15,6 +15,13 @@ namespace NSTemplate {
 struct NotFound;
 
 
+#pragma mark - TypeWrap
+template<typename T>
+struct TypeWrap {
+    using type = T;
+};
+
+
 #pragma mark - PairType
 template<typename T1, typename T2>
 struct PairType_ {
@@ -28,7 +35,10 @@ using PairType = PairType_<T1, T2>;
 
 #pragma mark - TypeList
 template<typename ...T>
-struct TypeList_ {
+struct TypeList_;
+
+template<>
+struct TypeList_<> {
     static constexpr size_t length = 0;
 };
 
@@ -43,7 +53,20 @@ using TypeList = TypeList_<T...>;
 
 #pragma mark - TypeDict
 template<typename ...PairTypes>
-using TypeDict = TypeList<PairTypes...>;
+struct TypeDict_;
+
+template<>
+struct TypeDict_<> {
+    static constexpr size_t count = 0;
+};
+
+template<typename K, typename V, typename ...PairTypes>
+struct TypeDict_<PairType<K, V>, PairTypes...> {
+    static constexpr size_t count = 1 + TypeDict_<PairTypes...>::count;
+};
+
+template<typename ...PairTypes>
+using TypeDict = TypeDict_<PairTypes...>;
 
 
 #pragma mark - AndValue
@@ -63,18 +86,18 @@ constexpr static bool OrValue<false, TNext> = TNext::value;
 
 
 #pragma mark - ConditionType
-template<bool condition, typename CurType, typename TNext>
+template<bool condition, typename TCur, typename TNext>
 struct ConditionType_ {
-    using type = CurType;
+    using type = typename TCur::type;
 };
 
-template<typename CurType, typename TNext>
-struct ConditionType_<false, CurType, TNext> {
+template<typename TCur, typename TNext>
+struct ConditionType_<false, TCur, TNext> {
     using type = typename TNext::type;
 };
 
-template<bool condition, typename CurType, typename TNext>
-using ConditionType = typename ConditionType_<condition, CurType, TNext>::type;
+template<bool condition, typename TCur, typename TNext>
+using ConditionType = typename ConditionType_<condition, TCur, TNext>::type;
 
 
 #pragma mark - ContainType
@@ -108,6 +131,10 @@ struct Type2Pos_<FindType, Index, FindType, T...> {
     static constexpr size_t value = Index;
 };
 
+template<typename FindType, size_t Index, typename ...T>
+struct Type2Pos_<FindType, Index, TypeList<T...>> {
+    static constexpr size_t value = Type2Pos_<FindType, Index, T...>::value;
+};
 
 template<typename FindType, typename ...T>
 constexpr size_t Type2Pos = Type2Pos_<FindType, 0, T...>::value;
@@ -123,9 +150,14 @@ template<size_t Pos, typename CurType, typename ...T>
 struct Pos2Type_<Pos, CurType, T...> {
     using type = ConditionType<
         Pos == 0,
-        CurType,
+        TypeWrap<CurType>,
         Pos2Type_<Pos - 1, T...>
     >;
+};
+
+template<size_t Pos, typename ...T>
+struct Pos2Type_<Pos, TypeList<T...>> {
+    using type = typename Pos2Type_<Pos, T...>::type;
 };
 
 template<size_t Pos, typename ...T>
@@ -142,7 +174,7 @@ template<size_t index, typename ReplaceType, typename ...Pre, typename CurType, 
 struct TypeListReplace_<index, ReplaceType, TypeList<Pre...>, TypeList<CurType, Post...>> {
     using type = ConditionType<
         index == 0,
-        TypeList<Pre..., ReplaceType, Post...>,
+        TypeWrap<TypeList<Pre..., ReplaceType, Post...>>,
         TypeListReplace_<index - 1, ReplaceType, TypeList<Pre..., CurType>, TypeList<Post...>>
     >;
 };
@@ -230,7 +262,7 @@ template<bool RemoveFirst, typename Remove, typename ...Pre, typename ...Post>
 struct TypeListRemoveType_<RemoveFirst, Remove, TypeList<Pre...>, TypeList<Remove, Post...>> {
     using type = ConditionType<
         RemoveFirst,
-        TypeList<Pre..., Post...>,
+        TypeWrap<TypeList<Pre..., Post...>>,
         TypeListRemoveType_<RemoveFirst, Remove, TypeList<Pre...>, TypeList<Post...>>
     >;
 };
@@ -260,11 +292,14 @@ struct TypeListRemoveDuplicate_<TypeList<Pre...>, TypeList<>> {
 
 template<typename ...Pre, typename Next, typename ...Post>
 struct TypeListRemoveDuplicate_<TypeList<Pre...>, TypeList<Next, Post...>> {
-    using type = ConditionType<
-        ContainType<Next, Pre...>,
-        typename TypeListRemoveDuplicate_<TypeList<Pre...>, TypeList<Post...>>::type,
-        TypeListRemoveDuplicate_<TypeList<Pre..., Next>, TypeList<Post...>>
-    >;
+    using type = typename TypeListRemoveDuplicate_<
+        ConditionType<
+            ContainType<Next, Pre...>,
+            TypeWrap<TypeList<Pre...>>,
+            TypeWrap<TypeList<Pre..., Next>>
+        >,
+        TypeList<Post...>
+    >::type;
 };
 
 template<typename OriginTypeList>
@@ -279,7 +314,7 @@ template<typename ...Checked, typename InsertKey, typename InsertValue, typename
 struct TypeDictInsert_<TypeDict<Checked...>, PairType<InsertKey, InsertValue>, TypeDict<PairType<CurKey, CurValue>, Remain...>> {
     using type = ConditionType<
         std::is_same_v<InsertKey, CurKey>,
-        TypeDict<Checked..., PairType<InsertKey, InsertValue>, Remain...>,
+        TypeWrap<TypeDict<Checked..., PairType<InsertKey, InsertValue>, Remain...>>,
         TypeDictInsert_<TypeDict<Checked..., PairType<CurKey, CurValue>>, PairType<InsertKey, InsertValue>, TypeDict<Remain...>>
     >;
 };
@@ -341,15 +376,15 @@ using TypeDictFromKeyListAndValueList = typename TypeDictFromKeyListAndValueList
 template<typename ...T>
 struct TypeDictCat_;
 
-template<typename ...PairTypes1>
-struct TypeDictCat_<TypeDict<PairTypes1...>, TypeDict<>> {
-    using type = TypeDict<PairTypes1...>;
+template<typename ...PairTypes>
+struct TypeDictCat_<TypeDict<PairTypes...>, TypeDict<>> {
+    using type = TypeDict<PairTypes...>;
 };
 
-template<typename ...PairTypes1, typename K, typename V, typename ...Remain>
-struct TypeDictCat_<TypeDict<PairTypes1...>, TypeDict<PairType<K, V>, Remain...>> {
+template<typename ...PairTypes, typename K, typename V, typename ...Remain>
+struct TypeDictCat_<TypeDict<PairTypes...>, TypeDict<PairType<K, V>, Remain...>> {
     using type = typename TypeDictCat_<
-        TypeDictInsert<TypeDict<PairTypes1...>, K, V>,
+        TypeDictInsert<TypeDict<PairTypes...>, K, V>,
         TypeDict<Remain...>
     >::type;
 };
@@ -366,66 +401,71 @@ template<typename ...TypeDicts>
 using TypeDictCat = typename TypeListCat_<TypeDicts...>::type;
 
 
-#pragma mark - TypeForKeyType
+#pragma mark - ValueForKey
 template<typename FindKeyType, typename ...T>
-struct TypeForKeyType_ {
+struct ValueForKey_ {
     static_assert(TypeList<T...>::length != 0, "Not Found KeyType");
 };
 
 /// Double List or Type
 template<typename FindKeyType, typename CurKey, typename CurValue, typename ...Remain>
-struct TypeForKeyType_<FindKeyType, TypeDict<PairType<CurKey, CurValue>, Remain...>> {
+struct ValueForKey_<FindKeyType, TypeDict<PairType<CurKey, CurValue>, Remain...>> {
     using type = ConditionType<
         std::is_same_v<FindKeyType, CurKey>,
-        CurValue,
-        TypeForKeyType_<FindKeyType, TypeDict<Remain...>>
+        TypeWrap<CurValue>,
+        ValueForKey_<FindKeyType, TypeDict<Remain...>>
     >;
 };
 
 template<typename FindKeyType, typename TypeDict>
-using TypeForKeyType = typename TypeForKeyType_<FindKeyType, TypeDict>::type;
+using ValueForKey = typename ValueForKey_<FindKeyType, TypeDict>::type;
 
 
-#pragma mark - TypeForValueType
-template<bool FindFirst, typename FindValueType, typename ...T>
-struct TypeForValueType_ {
+#pragma mark - FirstKeyForValue
+template<typename FindValue, typename ...T>
+struct FirstKeyForValue_ {
     using type = NotFound;
 };
 
-template<bool FindFirst, typename FindValueType, typename ...FoundKeys>
-struct TypeForValueType_<FindFirst, FindValueType, TypeList<FoundKeys...>, TypeDict<>> {
-    using type = typename std::conditional<
-        FindFirst,
-        NotFound,
-        TypeList<FoundKeys...>
-    >::type;
-};
-
-template<bool FindFirst, typename FindValueType, typename ...FoundKeys, typename KeyType, typename ValueType, typename ...Remain>
-struct TypeForValueType_<FindFirst, FindValueType, TypeList<FoundKeys...>, TypeDict<PairType<KeyType, ValueType>, Remain...>> {
+template<typename FindValue, typename Key, typename Value, typename ...Remain>
+struct FirstKeyForValue_<FindValue, TypeDict<PairType<Key, Value>, Remain...>> {
     using type = ConditionType<
-        std::is_same_v<FindValueType, ValueType>,
-        ConditionType<
-            FindFirst,
-            KeyType,
-            TypeForValueType_<
-                FindFirst,
-                FindValueType,
-                TypeList<FoundKeys..., KeyType>,
-                TypeDict<Remain...>
-            >
-        >,
-        TypeForValueType_<
-            FindFirst,
-            FindValueType,
-            TypeList<FoundKeys...>,
-            TypeDict<Remain...>
-        >
+        std::is_same_v<FindValue, Value>,
+        TypeWrap<Key>,
+        FirstKeyForValue_<FindValue, TypeDict<Remain...>>
     >;
 };
 
-template<typename FindValueType, typename TypeDict, bool FindFirst = false>
-using TypeForValueType = typename TypeForValueType_<FindFirst, FindValueType, TypeList<>, TypeDict>::type;
+template<typename FindValue, typename TypeDict>
+using FirstKeyForValue = typename FirstKeyForValue_<FindValue, TypeDict>::type;
+
+
+#pragma mark - AllKeyForValue
+template<typename FindValue, typename ...T>
+struct AllKeyForValue_ {
+    using type = NotFound;
+};
+
+template<typename FindValue, typename ...FoundKeys>
+struct AllKeyForValue_<FindValue, TypeList<FoundKeys...>, TypeDict<>> {
+    using type = TypeList<FoundKeys...>;
+};
+
+template<typename FindValue, typename ...FoundKeys, typename Key, typename Value, typename ...Remain>
+struct AllKeyForValue_<FindValue, TypeList<FoundKeys...>, TypeDict<PairType<Key, Value>, Remain...>> {
+    using type = typename AllKeyForValue_<
+        FindValue,
+        ConditionType<
+            std::is_same_v<FindValue, Value>,
+            TypeWrap<TypeList<FoundKeys..., Key>>,
+            TypeWrap<TypeList<FoundKeys...>>
+        >,
+        TypeDict<Remain...>
+    >::type;
+};
+
+template<typename FindValue, typename TypeDict>
+using AllKeyForValue = typename AllKeyForValue_<FindValue, TypeList<>, TypeDict>::type;
 
 
 #pragma mark - TypeDictAllKeys
